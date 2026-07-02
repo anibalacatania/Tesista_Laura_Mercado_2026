@@ -1,0 +1,142 @@
+---
+title: "Análisis descriptivo de vinos. "
+subtitle:  
+   | 
+   |
+   |  Fecha: Diciembre 2025
+   |  2 sesiones de entrenamiento, 3 sesiones de evaluación
+   |  Número de panelistas: 14
+   |  Número de muestras: 4 tratamientos por 2 repeticiones
+   |
+   | 
+   | 
+   |
+   |
+   | 
+   | 
+   |
+   |
+   |
+   |
+   |
+   | 
+bookdown::pdf_document2:
+---
+
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+library(readxl)
+library(tidyverse)
+library(SensoMineR)
+library(lmerTest)
+library(purrr)
+library(knitr)
+library(kableExtra)
+library(data.table)
+library(janitor)
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+data <- read_excel("dataok.xlsx")
+data<-as.data.frame(data) # lo transformo en data frame
+str(data) #para observar la estructura de los datos
+
+
+#configuramos producto, panelista y sesion como factor
+data$sesion<-as.factor (data$sesion)
+data$producto<-as.factor(data$producto)
+data$panelista<-as.factor(data$panelista)
+
+str(data)
+
+```
+
+
+
+
+
+
+
+## Exploración de datos con diagrama de cajas y bigotes
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE,fig.width=18, fig.height=50}
+data_boxplot<-data%>%
+  dplyr::select(-c(sesion, panelista))%>%
+  pivot_longer( cols = -producto)
+  
+data_boxplot<-as.data.frame(data_boxplot)
+
+ ggplot(data_boxplot,aes(x = producto, y = value, fill = name)) +
+  geom_boxplot(show.legend = FALSE)+
+   facet_wrap(.~name,ncol=3)+
+  theme(
+    strip.text = element_text(size = 36, face = "bold"),  # Tamaño de los títulos de cada gráfico
+    axis.text.x = element_text(size =36, angle = 45, hjust = 1)  # Tamaño y rotación de etiquetas del eje X
+  )
+```
+
+
+
+
+\newpage
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#res.panelperf <- panelperf(datosCF,firstvar=4,formul="~producto+panelista+ sesion",random=F)
+res.panelperf <- panelperf(data,firstvar=5,formul="~producto+panelista+ sesion+producto:panelista+producto:sesion+panelista:sesion",random=T)
+
+pvalues<-as.data.frame((round(res.panelperf$p.value,3)))%>% 
+rownames_to_column(var = "producto")
+
+kable(pvalues, booktabs = TRUE,
+             caption = "Tabla de p-valores  ") %>%
+   kable_styling(latex_options = c("striped", "scale_down"))%>%
+ column_spec(2, color = ifelse(pvalues$`producto          `< 0.05, "red", "black"))%>%
+ column_spec(5, color = ifelse(pvalues$`producto:panelista`< 0.05, "red", "black"))
+
+
+```
+
+
+
+
+
+
+
+\newpage  
+  
+    
+      
+        
+          
+            
+            
+            
+            
+            
+
+# Análisis de componentes principales  con  todas las variables
+```{r echo=FALSE, fig.keep=c(1,5)}
+plot <- panellipse(data,col.p=1,col.j=3,firstvar=4,level.search.desc=1,graph.type = "classic")
+
+
+```
+
+
+
+\newpage
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+results <- read_excel("results.xlsx")
+
+kbl(results, booktabs = TRUE,
+             caption = "Comparaciones multiples (LSD Fisher<0.05)")
+
+``` 
+
