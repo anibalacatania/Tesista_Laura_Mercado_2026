@@ -1,0 +1,8 @@
+Filas analizadas: 68
+Tratamientos: 4
+Panelistas: 17
+Atributos: 10
+Modelo: aov(respuesta ~ tratamiento + panelista)
+Diseño: ANOVA bifactorial sin replicación
+Comparación de medias: LSD de Fisher, alfa = 0.05
+La interacción tratamiento:panelista no puede estimarse por haber una observación por celda.

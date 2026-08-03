@@ -1,0 +1,6 @@
+Filas analizadas: 68
+Tratamientos: 4
+Panelistas: 17
+Atributos: 10
+Metodo: SensoMineR::panellipse
+Tipo de grafico: ggplot
